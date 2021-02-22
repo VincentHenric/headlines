@@ -12,7 +12,7 @@
     </form>
     <br />
     {% for article in articles %}
-      <b>{{article.title}}</b><br />
+      <b><a href="{{article.link}}">{{article.title}}</a></b><br />
       <i>{{article.published}}</i><br />
       <p>{{article.summary}}</p>
       <hr />
