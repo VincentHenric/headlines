@@ -93,7 +93,7 @@ def get_value_with_fallback(key):
         return request.args.get(key)
     if request.cookies.get(key):
         return request.cookies.get(key)
-    return DEFAULTS['key']
+    return DEFAULTS[key]
 
 if __name__ == '__main__':
     app.run()
