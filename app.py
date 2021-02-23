@@ -6,6 +6,7 @@ from urllib.request import urlopen
 import urllib.parse as urlparse
 from flask import Flask, render_template, request
 
+# version 1.1
 app = Flask(__name__)
 
 DEFAULTS = {'publication': 'bbc',
