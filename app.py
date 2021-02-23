@@ -10,14 +10,17 @@ from flask import Flask, render_template, request
 app = Flask(__name__)
 
 DEFAULTS = {'publication': 'bbc',
-            'city': 'London,UK'}
+            'city': 'London,UK',
+            'currency_from': 'GBP',
+            'currency_to': 'USD'}
 RSS_FEEDS = {'bbc':'http://feeds.bbci.co.uk/news/rss.xml',
              'cnn':'http://rss.cnn.com/rss/edition.rss',
              'fox':'http://feeds.foxnews.com/foxnews/latest',
              'iol':'http://www.iol.co.za/cmlink/1.640'}
 WEATHER_API_KEY = os.environ.get("WEATHER_API_KEY")
 WEATHER_FORECAST_URL = "http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid={}"
-
+CURRENCY_API_KEY = os.environ.get("CURRENCY_API_KEY")
+CURRENCY_URL = "https://openexchangerates.org//api/latest.json?app_id={}"
 
 @app.route('/')
 def home():
@@ -31,9 +34,17 @@ def home():
         city=DEFAULTS['city']
     weather = get_weather(city)
 
+    currency_from = DEFAULTS['currency_from']
+    currency_to = DEFAULTS['currency_to']
+    rate = {'currency_from':currency_from,
+            'currency_to':currency_to,
+            'rate': round(get_currency(currency_from, currency_to),2)
+            }
+
     return render_template("home.html",
                            articles=articles,
-                           weather=weather
+                           weather=weather,
+                           rate=rate
     )
 
 
@@ -60,6 +71,14 @@ def get_weather(query):
                    "country":parsed["sys"]["country"]
                    }
     return weather
+
+def get_currency(frm, to):
+    url = CURRENCY_URL.format(CURRENCY_API_KEY)
+    data = urlopen(url).read()
+    parsed = json.loads(data).get('rates')
+    frm_rate = parsed.get(frm.upper())
+    to_rate = parsed.get(to.upper())
+    return to_rate/frm_rate
 
 
 
