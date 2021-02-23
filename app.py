@@ -34,17 +34,23 @@ def home():
         city=DEFAULTS['city']
     weather = get_weather(city)
 
-    currency_from = DEFAULTS['currency_from']
-    currency_to = DEFAULTS['currency_to']
+    currency_from = request.args.get("currency_from")
+    if not currency_from:
+        currency_from = DEFAULTS['currency_from']
+    currency_to = request.args.get("currency_to")
+    if not currency_to:
+        currency_to = DEFAULTS['currency_to']
+    rate, currencies = get_currency(currency_from, currency_to)
     rate = {'currency_from':currency_from,
             'currency_to':currency_to,
-            'rate': round(get_currency(currency_from, currency_to),2)
+            'rate': rate
             }
 
     return render_template("home.html",
                            articles=articles,
                            weather=weather,
-                           rate=rate
+                           rate=rate,
+                           currencies=currencies
     )
 
 
@@ -76,9 +82,10 @@ def get_currency(frm, to):
     url = CURRENCY_URL.format(CURRENCY_API_KEY)
     data = urlopen(url).read()
     parsed = json.loads(data).get('rates')
+    currencies = sorted(list(parsed))
     frm_rate = parsed.get(frm.upper())
     to_rate = parsed.get(to.upper())
-    return to_rate/frm_rate
+    return round(to_rate/frm_rate,2), currencies
 
 
 
